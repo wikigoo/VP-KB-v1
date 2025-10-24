@@ -1,6 +1,209 @@
-title: VP-KB-v1
-logo: /assets/img/logo.png
-description: Creative Content Knowledge Base.
-show_downloads: true
-google_analytics:
+# ===================================
+# VP-KB-v1 Configuration File
+# AI Chatbot Knowledge Center
+# ===================================
+
+# Site Metadata
+title: VP-KB-v1 Knowledge Base
+description: Creative Content & Educational Resources for AI Assistants (Gemini, ChatGPT, Claude)
+author:
+  name: VP-KB-v1 Team
+  email: your-email@example.com
+
+# URL Configuration
+# IMPORTANT: Set baseurl correctly based on your repository name
+url: "https://wikigoo.github.io"
+baseurl: "/VP-KB-v1"  # Your repository name with leading slash
+
+# Build Settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+encoding: utf-8
+
+# Theme
 theme: jekyll-theme-minimal
+# Alternative themes you can use:
+# theme: jekyll-theme-cayman
+# theme: minima
+
+# Kramdown Settings (Markdown processor)
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    default_lang: text
+    css_class: 'highlight'
+
+# Navigation Configuration
+# These pages will appear in the main navigation
+header_pages:
+  - index.md
+  - creative-content/index.md
+  - educational/index.md
+  - equipment/index.md
+
+# Navigation Menu (Custom)
+navigation:
+  - title: Home
+    url: /
+  - title: Creative Content
+    url: /creative-content/
+    subnav:
+      - title: Blog Writer
+        url: /creative-content/blog-writer
+      - title: Podcast
+        url: /creative-content/podcast/
+      - title: News Writer
+        url: /creative-content/news-writer
+  - title: Educational
+    url: /educational/
+    subnav:
+      - title: Photography
+        url: /educational/nature-photography
+      - title: Documentary Editing
+        url: /educational/documentary-editing
+      - title: AI Journalism
+        url: /educational/ai-journalism
+  - title: Equipment
+    url: /equipment/
+    subnav:
+      - title: Canon R8
+        url: /equipment/canon-r8
+      - title: Sony Z90
+        url: /equipment/sony-z90
+      - title: Adobe Premiere
+        url: /equipment/premiere-2025
+      - title: vMix
+        url: /equipment/vmix
+
+# Collections Configuration
+collections:
+  creative-content:
+    output: true
+    permalink: /:collection/:name
+  educational:
+    output: true
+    permalink: /:collection/:name
+  equipment:
+    output: true
+    permalink: /:collection/:name
+
+# Defaults for Collections
+defaults:
+  - scope:
+      path: ""
+      type: "creative-content"
+    values:
+      layout: "default"
+      category: "creative"
+  - scope:
+      path: ""
+      type: "educational"
+    values:
+      layout: "default"
+      category: "educational"
+  - scope:
+      path: ""
+      type: "equipment"
+    values:
+      layout: "default"
+      category: "equipment"
+
+# Plugins (GitHub Pages Compatible)
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-relative-links
+
+# Jekyll SEO Tag Settings
+social:
+  name: VP-KB-v1
+  links:
+    - https://github.com/wikigoo/VP-KB-v1
+
+# Site Features
+show_downloads: true
+show_excerpts: true
+
+# Include/Exclude Files
+include:
+  - _pages
+  - .htaccess
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - LICENSE
+  - README.md
+  - package.json
+  - package-lock.json
+  - .git/
+  - .github/
+
+# Keep these files
+keep_files:
+  - .git
+  - .svn
+
+# Sass/SCSS Settings
+sass:
+  style: compressed
+  sass_dir: _sass
+
+# Timezone
+timezone: America/New_York
+
+# Pagination (if needed)
+paginate: 10
+paginate_path: "/page:num/"
+
+# Archive Settings
+archive:
+  type: monthly
+  layout: archive
+
+# Search Configuration
+search_enabled: true
+search_tokenizer_separator: /[\s/]+/
+
+# Analytics (optional - add your ID)
+google_analytics: # UA-XXXXXXXXX-X
+
+# Comments (optional)
+disqus:
+  shortname: # your-disqus-shortname
+
+# Social Media (optional)
+twitter_username: # your_twitter
+github_username: wikigoo
+
+# Footer Configuration
+footer_content: >
+  VP-KB-v1 Knowledge Base © 2025. Creative Content & Educational Resources for AI Assistants.
+  Maintained by <a href="https://github.com/wikigoo">wikigoo</a>.
+
+# Logo
+logo: /assets/img/logo.png
+
+# Favicon
+favicon: /assets/img/favicon.ico
+
+# Additional Settings
+liquid:
+  error_mode: strict
+  strict_filters: true
+
+# GitHub Pages Specific
+github:
+  repository_url: https://github.com/wikigoo/VP-KB-v1
+  is_project_page: true

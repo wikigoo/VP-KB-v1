@@ -1,0 +1,116 @@
+# Navigation Configuration for VP-KB-v1
+# This file controls the main site navigation menu
+
+main:
+  - title: "Home"
+    url: /
+    icon: "🏠"
+    
+  - title: "Chatbot Platforms"
+    url: /chatbots/
+    icon: "🤖"
+    dropdown:
+      - title: "Gemini-GEM"
+        url: /chatbots/gemini/
+      - title: "ChatGPT-GPT"
+        url: /chatbots/chatgpt/
+      - title: "Claude-Project"
+        url: /chatbots/claude/
+    
+  - title: "Creative Content"
+    url: /creative-content/
+    icon: "📝"
+    dropdown:
+      - title: "Blog Post Writer"
+        url: /creative-content/blog-writer/
+      - title: "News Writer"
+        url: /creative-content/news-writer/
+      - title: "Podcast Production"
+        url: /creative-content/podcast/
+        subitems:
+          - title: "Script Writer"
+            url: /creative-content/podcast/script-writer/
+          - title: "Style Guide"
+            url: /creative-content/podcast/style-guide/
+          - title: "Political Satire"
+            url: /creative-content/podcast/political-satire/
+          - title: "TTS Optimization"
+            url: /creative-content/podcast/tts-optimization/
+      - title: "AI Content Tools"
+        url: /creative-content/ai-tools/
+    
+  - title: "Educational"
+    url: /educational/
+    icon: "🎓"
+    dropdown:
+      - title: "Nature Photography"
+        url: /educational/nature-photography/
+      - title: "Documentary Editing"
+        url: /educational/documentary-editing/
+      - title: "Avid News Editor"
+        url: /educational/avid-news-editor/
+      - title: "Deep Internet Research"
+        url: /educational/deep-research/
+      - title: "AI Journalism"
+        url: /educational/ai-journalism/
+    
+  - title: "Equipment & Software"
+    url: /equipment/
+    icon: "🎥"
+    dropdown:
+      - title: "Camera Systems"
+        subitems:
+          - title: "Canon R8"
+            url: /equipment/canon-r8/
+          - title: "Sony Z90"
+            url: /equipment/sony-z90/
+      - title: "Software Guides"
+        subitems:
+          - title: "Adobe Premiere 2025"
+            url: /equipment/premiere-2025/
+          - title: "vMix Streaming"
+            url: /equipment/vmix/
+          - title: "News Video Production"
+            url: /equipment/news-video-production/
+
+# Footer Navigation
+footer:
+  - title: "Documentation"
+    url: /docs/
+  - title: "Contributing"
+    url: /contributing/
+  - title: "GitHub Repository"
+    url: https://github.com/wikigoo/VP-KB-v1
+    external: true
+  - title: "Report Issue"
+    url: https://github.com/wikigoo/VP-KB-v1/issues
+    external: true
+
+# Sidebar Navigation (for documentation pages)
+docs:
+  - title: "Getting Started"
+    children:
+      - title: "Introduction"
+        url: /docs/introduction/
+      - title: "Quick Start"
+        url: /docs/quick-start/
+      - title: "Installation"
+        url: /docs/installation/
+        
+  - title: "Usage Guide"
+    children:
+      - title: "For AI Training"
+        url: /docs/ai-training/
+      - title: "For Human Reference"
+        url: /docs/human-reference/
+      - title: "Best Practices"
+        url: /docs/best-practices/
+        
+  - title: "Contributing"
+    children:
+      - title: "How to Contribute"
+        url: /docs/contributing/
+      - title: "Style Guide"
+        url: /docs/style-guide/
+      - title: "Template Structure"
+        url: /docs/templates/
