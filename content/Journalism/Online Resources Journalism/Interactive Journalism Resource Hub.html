@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Journalism Resource Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The application is designed as an interactive dashboard and filterable directory. This structure was chosen over a linear report format to empower users to actively explore and find relevant information quickly, which is the primary goal of a resource collection. The top-level dashboard provides an immediate, high-level synthesis of the knowledge base's composition (resources by category, key themes via keywords). Below, the filterable card grid allows for deep, user-driven exploration. This two-part structure (synthesis + exploration) makes the dense information from the report highly consumable and turns a static list into a functional tool. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Resource counts per category -> Goal: Compare -> Viz: Bar Chart -> Interaction: Hover tooltips -> Justification: Best for comparing discrete counts across multiple categories. Library: Chart.js.
+        2. Report Info: Keyword frequency -> Goal: Show Proportions/Themes -> Viz: Donut Chart -> Interaction: Hover tooltips -> Justification: Clearly shows the main thematic focus areas of the resource collection. Library: Chart.js.
+        3. Report Info: Full resource list -> Goal: Explore & Access -> Presentation: Filterable Card Grid -> Interaction: Category select filter, free-text search filter, clickable links -> Justification: Provides a scannable, visually organized, and powerful way for users to drill down to the specific resources they need. Method: HTML/CSS/JS.
+        4. Gemini Integration: Synthesize Themes (LLM summary of filtered results) -> Goal: Synthesize & Learn -> Interaction: Button click, LLM API call.
+        5. Gemini Integration: Resource Elaborator (LLM structured analysis per card) -> Goal: Deep Context -> Interaction: Button click, LLM API call.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 96;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .tag {
+            background-color: #eaddd7;
+            color: #5f5753;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #14532d;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800 mb-2">Interactive Journalism Resource Hub</h1>
+            <p class="text-lg text-stone-600">An explorable dashboard of curated tools, guides, and analysis for media professionals.</p>
+        </header>
+
+        <main>
+            <section id="dashboard" class="mb-12 bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                <h2 class="text-2xl font-bold text-stone-700 mb-6 text-center">Knowledge Base Overview</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                    <div class="lg:col-span-3">
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="chart-container h-[35vh] max-h-[350px]">
+                            <canvas id="keywordChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                 <p class="text-center text-sm text-stone-500 mt-4">This section provides a high-level summary of the entire resource collection. The bar chart shows the distribution of resources across different categories, giving you a quick sense of the topics covered. The donut chart highlights the most frequent keywords, revealing the primary themes and focus areas within the knowledge base.</p>
+            </section>
+
+            <section id="explorer" class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                <h2 class="text-2xl font-bold text-stone-700 mb-2 text-center">Resource Explorer</h2>
+                <p class="text-center text-stone-600 mb-6">Use the filters below to search the full collection of journalism resources. You can select a specific category or use the search bar to find resources by title, description, or keyword.</p>
+                
+                <div class="flex flex-col md:flex-row gap-4 mb-8 sticky top-0 bg-white/80 backdrop-blur-sm py-4 z-10">
+                    <div class="flex-grow">
+                        <label for="categoryFilter" class="sr-only">Filter by Category</label>
+                        <select id="categoryFilter" class="w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-stone-400 focus:border-stone-400 transition">
+                        </select>
+                    </div>
+                    <div class="flex-grow">
+                        <label for="searchFilter" class="sr-only">Search</label>
+                        <input type="text" id="searchFilter" placeholder="Search by keyword (e.g., AI, Ethics, Data)..." class="w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:ring-2 focus:ring-stone-400 focus:border-stone-400 transition">
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-8">
+                    <button id="synthesizeButton" class="flex items-center space-x-2 px-6 py-3 bg-teal-700 text-white font-semibold rounded-lg shadow-lg hover:bg-teal-800 transition transform hover:scale-[1.02] disabled:opacity-50" onclick="handleGenerateSummary()">
+                        <span id="synthesize-spinner" class="hidden"><span class="spinner"></span></span>
+                        <span id="synthesize-text">✨ Synthesize Current Themes</span>
+                    </button>
+                </div>
+
+                <div id="summary-output" class="bg-stone-50 border-l-4 border-teal-700 p-4 mb-8 rounded-lg shadow-inner hidden">
+                    <p class="text-sm font-semibold text-teal-800 mb-2">LLM Analysis:</p>
+                    <div id="summary-content" class="text-stone-700"></div>
+                </div>
+
+                <div id="resource-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+                <p id="no-results" class="text-center text-stone-500 py-12 text-lg hidden">No resources found matching your criteria.</p>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        const API_KEY = "";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        const MAX_RETRIES = 5;
+
+        const resources = [
+            { url: "https://www.bbc.com/academy/learning-resources-for-journalism-students", title: "BBC Academy: Learning Resources for Journalism Students", description: "This BBC platform offers comprehensive educational resources designed specifically for aspiring and current journalism students. It covers foundational reporting techniques, digital media skills, editorial standards, and broadcast production guides, leveraging the BBC's extensive industry expertise.", keywords: "Journalism Training, Media Education, BBC Standards, Reporting Skills, Broadcast", category: "Journalism Education" },
+            { url: "https://www.icfj.org/", title: "International Center for Journalists (ICFJ)", description: "ICFJ is a non-profit organization that empowers a global network of journalists to produce high-quality, impactful news. It offers training, mentoring, and international fellowships, with a focus on investigative reporting and digital innovation in underserved regions.", keywords: "Global Journalism, Media Development, Training, Investigative Reporting, Fellowships", category: "Journalism Education" },
+            { url: "https://onlinejournalismblog.com/", title: "Online Journalism Blog", description: "This long-running blog, maintained by Paul Bradshaw, provides practical advice and critical analysis of digital-first journalism practices. It covers topics ranging from content strategy and social media use to essential tools and interactive storytelling techniques.", keywords: "Digital Journalism, Online Reporting, Content Strategy, Media Blogs, Web Tools", category: "Journalism Education" },
+            { url: "https://firstdraftnews.org/training/", title: "First Draft News Training", description: "First Draft offers hundreds of resources focusing on verification, responsible reporting, and online safety to combat false information and \"fake news.\" It helps new and experienced journalists adhere to ethical standards in difficult digital times.", keywords: "Verification, Responsible Reporting, Online Safety, Media Ethics, Fake News", category: "Journalism Education" },
+            { url: "http://www.thomsonfoundation.org/e-learning/", title: "Thomson Foundation E-Learning", description: "The Thomson Foundation provides a large catalogue of free, CPD-approved e-learning courses totaling over 700 minutes of video. Topics include social media, building a brand, and mobile journalism, with free access to paid courses after completing three e-learning modules.", keywords: "E-Learning, Mobile Journalism, Social Media Training, CPD-Approved, Video Courses", category: "Journalism Education" },
+            { url: "https://newsinitiative.withgoogle.com/training/courses", title: "Google News Labs Training", description: "Part of the Google News Initiative, News Labs offers over 10 hours of free lessons focusing on digital journalism, including Google product usage, monetization, investigative reporting, and data-led journalism. It is a crucial resource for digital upskilling.", keywords: "Digital Journalism, Google Products, Investigative Reporting, Monetization, Data-Led Reporting", category: "Journalism Education" },
+            { url: "https://courses.academy.africa/all-courses/", title: "Storylab Academy", description: "Created in partnership with the Google News Initiative, this academy provides crash courses in journalism designed with African journalists in mind. It covers digital security, investigative reporting, and data, offering useful content globally.", keywords: "Africa, Digital Security, Data Journalism, Investigative Reporting, News Initiative", category: "Journalism Education" },
+            { url: "https://www.poynter.org/newsu/", title: "Poynter News University", description: "Poynter offers over 100 free interactive journalism courses and webinars, supported by an international community. Courses cover a wide range of topics, from interpreting polls to planning the promotion of a major scoop.", keywords: "Interactive Courses, Media Training, Webinars, Poll Interpretation, Professional Development", category: "Journalism Education" },
+            { url: "https://www.edx.org/learn/journalism", title: "EDX Journalism Courses", description: "EDX is an online learning portal hosting journalism courses from prestigious universities like Harvard, Michigan, and Berkley. It offers free courses focused on detecting fake news and investigative journalism, ensuring legitimate and high-quality learning.", keywords: "University Courses, Fake News Detection, Investigative Journalism, Online Learning, Legit Courses", category: "Journalism Education" },
+            { url: "https://www.coursera.org/courses?query=journalism", title: "Coursera Journalism Courses", description: "Similar to EDX, Coursera provides numerous free online journalism courses, all put together by respected universities. Users can search the platform to find over 40 courses on various journalistic disciplines.", keywords: "University Courses, Online Courses, Journalism Disciplines, Upskilling, Higher Education", category: "Journalism Education" },
+            { url: "https://alison.com/courses/media-and-journalism", title: "Alison Media and Journalism Courses", description: "Alison is a free online course hub with about 20 courses on media studies, ranging from basic to complex, including broadcast, gaming, and writing for young audiences. The content is regularly revised for relevance.", keywords: "Media Studies, Online Courses, Broadcast Journalism, Gaming Journalism, Writing Skills", category: "Journalism Education" },
+            { url: "https://knightcenter.utexas.edu/digitallibrary", title: "Knight Center for Journalism Digital Library", description: "Created by the University of Texas at Austin to raise ethical and professional standards in Latin America and the Caribbean, this site offers a library of useful free textbooks, including guides on global education and reporting in times of threats.", keywords: "Free Textbooks, Latin America, Caribbean, Media Ethics, Global Journalism Education", category: "Journalism Education" },
+            { url: "https://learninglab.solutionsjournalism.org/", title: "Solutions Journalism Learning Lab", description: "This lab focuses on solutions journalism, which rigorously examines solutions to social problems. It offers a host of free online courses, including a basic guide and in-depth courses tailored for different sectors.", keywords: "Solutions Journalism, Social Problems, Sector-Specific Training, Reporting Guides, Impactful News", category: "Journalism Education" },
+            { url: "https://ejc.net/events", title: "European Journalism Centre (EJC) Events", description: "The EJC funds numerous training initiatives (including Datajournalism.com) and runs its own events, such as free-to-attend News Summits. These issue-led events bring together experts from across the field.", keywords: "News Summits, Media Events, European Journalism, Training Initiatives, Industry Experts", category: "Journalism Education" },
+            { url: "http://stylemanual.natgeo.com/", title: "National Geographic Style Manual", description: "This alphabetically arranged, frequently updated guide details the preferred style and usage conventions of the National Geographic Society, serving as an essential editorial reference since 1995.", keywords: "Style Guide, National Geographic, Usage, Writing Conventions, Editorial Standards", category: "Style & Writing Guides" },
+            { url: "http://www.tameri.com/edit/style.html", title: "The Tameri Guide for Writers: Generalized Stylebook", description: "This stylebook is based on *The Associated Press Stylebook*, providing a generalized guide with practical and consistent advice for writers, reporters, and editors at daily newspapers and various periodicals.", keywords: "AP Style, Tameri Guide, Writing Rules, Stylebook, Newspaper Editing", category: "Style & Writing Guides" },
+            { url: "https://en.wikipedia.org/wiki/Wikipedia%3aManual_of_Style", title: "Wikipedia: Manual of Style", description: "The official style guide for all Wikipedia articles, intended to ensure consistent, clear, and precise language, layout, and formatting across the encyclopedia's content.", keywords: "Wikipedia, Manual of Style, Editing, Consistency, Formatting", category: "Style & Writing Guides" },
+            { url: "http://www2.media.uoa.gr/lectures/linguistic_archives/academic_papers0506/notes/stylesheets_3.pdf", title: "The BBC News Styleguide (pdf)", description: "A popular guide written by a veteran BBC reporter, this manual explores the complexities of modern English usage rather than just a prescriptive \"do and don't\" list for journalists.", keywords: "BBC Style, English Usage, Grammar, Reporting, Editorial Guide", category: "Style & Writing Guides" },
+            { url: "https://shop.economist.com/products/the-economist-style-guide-12th-edition", title: "Economist.com Style Guide", description: "Based on the stylebook followed by journalists at *The Economist* magazine, this guide provides rules for clear, concise, and consistent writing aligned with the magazine's tone and editorial standards.", keywords: "Economist Style, Concise Writing, Magazine Journalism, Editorial Guide, Tone", category: "Style & Writing Guides" },
+            { url: "https://www.theguardian.com/guardian-observer-style-guide-a", title: "The Guardian and Observer Style Guide", description: "The online version of *Guardian Style*, providing the house style for *The Guardian* and *The Observer*. This handbook offers witty and comprehensive rules for UK journalistic writing.", keywords: "Guardian Style, House Style, UK Journalism, Writing Handbook, Newspaper Editing", category: "Style & Writing Guides" },
+            { url: "http://www.btb.termiumplus.gc.ca/tpv2guides/guides/tcdnstyl/index-eng.html?lang=eng", title: "The Canadian Style", description: "Compiled by the Canadian government's Translation Bureau, this guide offers concise advice on written English in the Canadian context, including drafting memos, reports, and bibliographies.", keywords: "Canadian English, Government Style, Writing Advice, Translation Bureau, Reports", category: "Style & Writing Guides" },
+            { url: "http://www.onemanandhisblog.com/", title: "One Man and His Blog", description: "Adam Tinworth's blog covers journalism, technology, digital publishing, and mobile/social media, offering tips on tools and reflections on the industry for professionals and students.", keywords: "Digital Journalism, Technology, Social Media, Publishing, Adam Tinworth", category: "Journalism Blogs & Analysis" },
+            { url: "http://jonslattery.blogspot.com/", title: "Jon Slattery", description: "Jon Slattery, a freelance journalist and former deputy editor of *Press Gazette*, uses his blog to offer an independent view on media matters, often sharing media quotes of the week.", keywords: "Media Commentary, Industry View, Freelance Journalism, Press Gazette, Quotes", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.jacklail.com/", title: "JackLail.com", description: "Jack Lail, former digital director for the *Knoxville News Sentinel*, shares news about the industry, links to related resources, and tracks experiments in online commenting and digital strategy.", keywords: "Digital Strategy, Online Commenting, Media Industry News, Digital Director, Technology", category: "Journalism Blogs & Analysis" },
+            { url: "http://clairemiller.net/blog/", title: "Claire Miller's Blog", description: "Data journalist Claire Miller's blog is a must-follow resource for anyone interested in data journalism, offering insights like a large list of Freedom of Information (FoI) ideas for reporters.", keywords: "Data Journalism, FoI Ideas, Local Reporting, Data Analyst, Claire Miller", category: "Journalism Blogs & Analysis" },
+            { url: "http://kristinelowe.blogs.com/", title: "Kristine Lowe", description: "A Norway-based journalist and industry expert, her archived blog includes valuable topics such as integrating data journalism into the newsroom and general media strategy.", keywords: "Norway Journalism, Industry Expert, Newsroom Strategy, Data Journalism, Archived Content", category: "Journalism Blogs & Analysis" },
+            { url: "http://maryhamilton.co.uk/", title: "Maz Hamilton's Blog", description: "The blog of Mary Hamilton (former executive editor, audience at *The Guardian*) contains valuable content about technology and storytelling, though it is not frequently updated.", keywords: "Technology, Storytelling, Audience Engagement, Guardian Editor, Media Consultant", category: "Journalism Blogs & Analysis" },
+            { url: "https://subsstandards.wordpress.com/", title: "Subs Standards", description: "Fiona Cullinan's blog provides \"tales from the sub-editors desk and crossing the digital divide,\" offering a perspective on copy editing standards and the transition to digital media.", keywords: "Sub-Editors, Copy Editing, Digital Divide, Editorial Standards, Substandards", category: "Journalism Blogs & Analysis" },
+            { url: "http://zombiejournalism.com/", title: "Zombie Journalism", description: "Established by Mandy Jenkins, this blog evaluates changes in the industry, including remote working and the challenge of fake news, asserting that journalism is \"alive and kicking.\"", keywords: "Industry Change, Fake News, Remote Working, Media Evaluation, Mandy Jenkins", category: "Journalism Blogs & Analysis" },
+            { url: "http://rhianjournojones.wordpress.com/", title: "A blagger's guide to getting into journalism", description: "Created by freelance music journalist Rhian Jones, this guide provides writing tips, pitching advice, and general career advice for those starting out in the industry.", keywords: "Career Advice, Writing Tips, Pitching, Entry-Level, Freelance Music", category: "Journalism Blogs & Analysis" },
+            { url: "http://scripting.com/", title: "Scripting News", description: "Dave Winer's weblog, potentially the longest-running on the internet, explores developments in journalism alongside a range of other issues from a software developer's perspective.", keywords: "Dave Winer, Software Development, Weblog History, Media Development, Technology", category: "Journalism Blogs & Analysis" },
+            { url: "http://blog.digidave.org/", title: "DigiDave", description: "David Cohn's blog focuses on media innovation and the emerging practice of participatory journalism. Cohn is a co-founder of Subtext and a former executive producer at AJ+.", keywords: "Media Innovation, Participatory Journalism, Subtext, David Cohn, Digital Strategy", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.christophtrappe.com/", title: "The Authentic Storytelling Project", description: "Christoph Trappe, a journalist and content marketing strategist, blogs about the best ways to tell and share authentic stories on social media for maximum impact.", keywords: "Authentic Storytelling, Social Media, Content Marketing, Digital Strategy, Christoph Trappe", category: "Journalism Blogs & Analysis" },
+            { url: "https://shirishkulkarni.co.uk/", title: "Shirish Kulkarni", description: "The website of the award-winning journalist, researcher, and trainer Shirish Kulkarni, featuring posts on innovative approaches to storytelling, mental health, and inclusion.", keywords: "Innovative Storytelling, Mental Health, Inclusion, Media Trainer, Shirish Kulkarni", category: "Journalism Blogs & Analysis" },
+            { url: "https://therebooting.substack.com/", title: "The Rebooting", description: "Brian Morrissey's Substack newsletter/site providing analysis of digital publishing and media topics from a business model angle, focusing on monetization and strategy (subscription required for full content).", keywords: "Digital Publishing, Business Models, Media Strategy, Monetization, Brian Morrissey", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.getrevue.co/profile/mediahighlighther", title: "Media HighlightHer", description: "Esther Kezia Thorpe's blog and newsletter dedicated to elevating the work of women who cover the business of media, including advertising, technology, and publishing.", keywords: "Women in Media, Media Business, Technology, Publishing, Esther Kezia Thorpe", category: "Journalism Blogs & Analysis" },
+            { url: "https://mediajunglenews.substack.com/", title: "Media Jungle", description: "Alex Ragir's Substack newsletter/website that keeps readers informed and entertained at the intersection of media and technology.", keywords: "Media, Technology, Newsletters, Alex Ragir, Digital Industry", category: "Journalism Blogs & Analysis" },
+            { url: "http://pressthink.org/", title: "PressThink", description: "Jay Rosen's highly influential blog, where the NYU associate professor writes essays, interviews, and press criticism about the state of the press and its challenges in the digital era.", keywords: "Jay Rosen, Media Criticism, Digital Press, Journalism Challenges, NYU", category: "Journalism Blogs & Analysis" },
+            { url: "http://alangeere.blogspot.com/", title: "Alan Geere online", description: "The blog of journalist, academic, and editorial consultant Alan Geere, featuring reflections on the industry, international issues, and personal snippets.", keywords: "Journalism Academic, Editorial Consultant, Industry Reflections, International Issues, Alan Geere", category: "Journalism Blogs & Analysis" },
+            { url: "http://buzzmachine.com/", title: "BuzzMachine", description: "Jeff Jarvis's influential blog, where the media commentator and CUNY professor charts his personal opinions on journalism, media, and entrepreneurial journalism.", keywords: "Jeff Jarvis, Media Commentator, Entrepreneurial Journalism, CUNY, Digital Media", category: "Journalism Blogs & Analysis" },
+            { url: "http://georgebrock.net/", title: "George Brock", description: "The blog of George Brock, professor of journalism at City, University of London, which he uses to comment on developments and issues within the media industry.", keywords: "Journalism Professor, Media Commentary, City University London, Industry Issues, George Brock", category: "Journalism Blogs & Analysis" },
+            { url: "http://dankennedy.net/", title: "Media Nation", description: "Dan Kennedy's site featuring frequent news and commentary on the industry, specializing in alternative business models for news at Northeastern University's School of Journalism.", keywords: "Business Models, News Commentary, Northeastern University, Alternative Media, Dan Kennedy", category: "Journalism Blogs & Analysis" },
+            { url: "http://editdesk.wordpress.com/", title: "The Editor's Desk", description: "A blog for \"anyone who loves words and the news,\" maintained by copy editor and professor Andy Bechtel, focusing on editing, Q&As, and interesting industry topics.", keywords: "Copy Editing, Editorial, Professor Bechtel, Q&A, UNC Journalism", category: "Journalism Blogs & Analysis" },
+            { url: "https://billgentile.com/news/", title: "Bill Gentile", description: "A documentary filmmaker and American University professor who blogs about his work teaching 'backpack video journalism' around the world and his experiences.", keywords: "Video Journalism, Backpack Reporting, Documentary Film, American University, Global Training", category: "Journalism Blogs & Analysis" },
+            { url: "https://damianradcliffe.medium.com/", title: "Damian Radcliffe", description: "The Medium blog of Damian Radcliffe, a chambers professor in journalism at the University of Oregon, featuring frequent updates at the intersection of journalism and research.", keywords: "Journalism Research, Media Technology, University of Oregon, Digital Updates, Academic Blog", category: "Journalism Blogs & Analysis" },
+            { url: "http://tellingthestoryblog.com/", title: "Telling The Story", description: "Video journalist Matt Pearl's blog that takes a continuous look at how journalists craft stories, offering commentary, links to great work, and reflections on deeper issues.", keywords: "Video Journalism, Storytelling, Matt Pearl, Visual Narrative, Commentary", category: "Journalism Blogs & Analysis" },
+            { url: "http://amasportsphotoagency.wordpress.com/", title: "Football Photographer Blog", description: "Matthew Ashton's blog, detailing his career as a highly published football photographer, including how he started and the technology he uses to file pictures.", keywords: "Sports Photography, Photojournalism, Football, Career Advice, Matthew Ashton", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.leonneal.com/work", title: "Leon Neal", description: "A photo blog by Leon Neal, a press photographer for Getty Images, showcasing his work and perspectives on photojournalism.", keywords: "Photojournalism, Getty Images, Press Photographer, Photography Portfolio, Leon Neal", category: "Journalism Blogs & Analysis" },
+            { url: "http://cyndygreen.wordpress.com/", title: "Video Journalism", description: "Cyndy Green's blog focuses on visual storytelling and life outside the news industry, drawing on her experience as a retired freelance video journalist with a background in TV news.", keywords: "Visual Storytelling, TV News, Video Journalist, Freelance, Cyndy Green", category: "Journalism Blogs & Analysis" },
+            { url: "https://hixposure.co.uk/", title: "Hixposure", description: "David Hicks's photojournalism blog, self-described as \"art journalism meets social comment,\" which explores the extraordinary moments in ordinary life through photography.", keywords: "Photojournalism, Art Journalism, Social Comment, Photography Blog, David Hicks", category: "Journalism Blogs & Analysis" },
+            { url: "https://davidhiggerson.wordpress.com/", title: "David Higgerson", description: "David Higgerson writes about data journalism, social media, and freedom of information, providing weekly round-ups of FOI stories and reflecting on digital opportunities for regional journalists.", keywords: "Data Journalism, FOI, Regional News, Social Media, Digital Opportunities", category: "Journalism Blogs & Analysis" },
+            { url: "https://simonrogers.net/", title: "Simon Rogers", description: "The blog of Simon Rogers, Data Editor at Google and creator of the *Guardian* Data website, covering a variety of journalism areas for both beginners and experienced reporters.", keywords: "Google Data Editor, Guardian Data, Data Journalism, Industry Advice, Simon Rogers", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.baekdal.com/", title: "Baekdal Plus", description: "Thomas Baekdal's invaluable resource offering analysis of the media industry, focusing on future trends, editorial and business strategies, monetization, analytics, and data (subscription required for full access).", keywords: "Media Analysis, Business Strategy, Monetization, Analytics, Thomas Baekdal", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.amediaoperator.com/", title: "A Media Operator", description: "Jacob Donnelly's subscription-based publication offering twice-weekly newsletters on the tactics and strategies involved in building and scaling digital media companies.", keywords: "Digital Media Companies, Business Tactics, Strategy, Newsletters, Jacob Donnelly", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.poynter.org/", title: "Poynter", description: "A global non-profit journalism school and research institute offering training, resources, and analysis to elevate journalistic excellence and protect a free press. Poynter is a leading authority on ethics and fact-checking.", keywords: "Journalism Ethics, Fact-Checking, Media Training, News Analysis, Press Standards", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.cjr.org/", title: "Columbia Journalism Review (CJR)", description: "An essential publication for journalists, CJR provides deep, critical analysis of the press's performance, ethics, and business challenges. It acts as an independent voice for the industry.", keywords: "Media Criticism, Journalism Ethics, Industry Analysis, Business of News, Columbia University", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.niemanlab.org/", title: "Nieman Lab", description: "Nieman Lab is a project of the Nieman Foundation at Harvard that focuses on the future of news, innovation, and digital strategy. It tracks experiments and provides thought leadership on media trends.", keywords: "Future of News, Digital Innovation, Media Strategy, Nieman Foundation, Harvard", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.lenfestinstitute.org/", title: "The Lenfest Institute for Journalism", description: "A non-profit dedicated to sustaining local journalism through grants, technology development, and research into new sustainable business models for news organizations.", keywords: "Local Journalism, Business Models, News Sustainability, Grants, Technology Development", category: "Journalism Blogs & Analysis" },
+            { url: "https://www.digitalnewsreport.org/", title: "Reuters Institute Digital News Report", description: "The site for the annual report providing comprehensive data and analysis of news consumption trends, trust levels, and media habits across dozens of countries.", keywords: "News Consumption, Media Trends, Digital Data, Audience Behavior, Global Report", category: "Journalism Research" },
+            { url: "https://www.journalism.co.uk/", title: "Journalism.co.uk", description: "A UK-based resource offering news, features, and training advice focused on digital media, providing job listings and insights into tools and techniques for modern journalists.", keywords: "Digital Media, UK Journalism, Training Advice, Job Listings, News Tools", category: "Journalism Blogs & Analysis" }
+        ];
+
+        const categoryFilter = document.getElementById('categoryFilter');
+        const searchFilter = document.getElementById('searchFilter');
+        const resourceGrid = document.getElementById('resource-grid');
+        const noResults = document.getElementById('no-results');
+        const summarizeBtn = document.getElementById('synthesizeButton');
+        const summaryOutput = document.getElementById('summary-output');
+        const summaryContent = document.getElementById('summary-content');
+        const synthesizeSpinner = document.getElementById('synthesize-spinner');
+        const synthesizeText = document.getElementById('synthesize-text');
+
+        let categoryChart, keywordChart;
+
+        async function fetchWithRetry(payload, retries = 0) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "LLM failed to generate content.";
+            } catch (error) {
+                if (retries < MAX_RETRIES) {
+                    const delay = Math.pow(2, retries) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(payload, retries + 1);
+                } else {
+                    console.error("Gemini API call failed after multiple retries:", error);
+                    return "Sorry, the AI service is currently unavailable. Please try again later.";
+                }
+            }
+        }
+
+        async function handleGenerateSummary() {
+            summarizeBtn.disabled = true;
+            synthesizeSpinner.classList.remove('hidden');
+            synthesizeText.textContent = 'Analyzing...';
+            summaryOutput.classList.add('hidden');
+            summaryContent.innerHTML = '';
+
+            const currentResources = Array.from(resourceGrid.children).map(card => {
+                const index = card.getAttribute('data-index');
+                return resources[parseInt(index)];
+            });
+
+            if (currentResources.length === 0) {
+                summaryContent.textContent = "Please filter some resources before attempting to generate a summary.";
+                summaryOutput.classList.remove('hidden');
+                summarizeBtn.disabled = false;
+                synthesizeSpinner.classList.add('hidden');
+                synthesizeText.textContent = '✨ Synthesize Current Themes';
+                return;
+            }
+
+            const resourceListText = currentResources.map(r => 
+                `Title: ${r.title}\nDescription: ${r.description}\nKeywords: ${r.keywords}\n---`
+            ).join('\n');
+
+            const systemPrompt = "You are an expert media analyst. Your task is to analyze the provided list of journalism resources (titles, descriptions, and keywords) and generate a concise, single-paragraph overview that identifies the 3-5 most recurring themes, key knowledge gaps they address, and the primary benefit of exploring this particular collection. Write in a helpful, professional tone. Do not use markdown headers or lists.";
+
+            const userQuery = `Analyze this list of ${currentResources.length} resources:\n\n${resourceListText}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            const summary = await fetchWithRetry(payload);
+            
+            summaryContent.innerHTML = summary.replace(/\n/g, '<br>');
+            summaryOutput.classList.remove('hidden');
+            
+            summarizeBtn.disabled = false;
+            synthesizeSpinner.classList.add('hidden');
+            synthesizeText.textContent = '✨ Synthesize Current Themes';
+        }
+
+        async function handleElaborateResource(resource, buttonElement) {
+            const originalText = buttonElement.innerHTML;
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = `<span class="spinner w-4 h-4 mr-2"></span> Analyzing...`;
+
+            const detailContainerId = `detail-${resource.title.replace(/\s/g, '-')}`;
+            let detailContainer = document.getElementById(detailContainerId);
+            
+            if (detailContainer) {
+                detailContainer.remove();
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = originalText;
+                return;
+            }
+
+            detailContainer = document.createElement('div');
+            detailContainer.id = detailContainerId;
+            detailContainer.className = 'mt-4 pt-4 border-t border-teal-300';
+            buttonElement.closest('.card').appendChild(detailContainer);
+
+            const systemPrompt = "You are a professional resource curator. Based on the provided resource details, generate a structured analysis with three sections: **Key Focus**, **Target User**, and **Potential Application**. Use a friendly, encouraging, and clear tone. Present the output using **bold text** for the section names and clear line breaks.";
+
+            const userQuery = `Resource Details:\nTitle: ${resource.title}\nCategory: ${resource.category}\nDescription: ${resource.description}\nKeywords: ${resource.keywords}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            const analysis = await fetchWithRetry(payload);
+            
+            detailContainer.innerHTML = `
+                <p class="text-sm font-semibold text-teal-700 mb-2">✨ AI Detailed Analysis:</p>
+                <div class="text-xs text-stone-600 space-y-2">${analysis.replace(/\n/g, '<br>')}</div>
+            `;
+
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalText;
+        }
+
+        function getUniqueCategories() {
+            const categories = new Set(resources.map(res => res.category));
+            return ['All Categories', ...Array.from(categories).sort()];
+        }
+
+        function populateCategoryFilter() {
+            const categories = getUniqueCategories();
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        function renderResources() {
+            const selectedCategory = categoryFilter.value;
+            const searchTerm = searchFilter.value.toLowerCase();
+            
+            const filteredResources = resources.filter(res => {
+                const inCategory = selectedCategory === 'All Categories' || res.category === selectedCategory;
+                const inSearch = !searchTerm ||
+                                 res.title.toLowerCase().includes(searchTerm) ||
+                                 res.description.toLowerCase().includes(searchTerm) ||
+                                 res.keywords.toLowerCase().includes(searchTerm);
+                return inCategory && inSearch;
+            });
+
+            resourceGrid.innerHTML = '';
+            if (filteredResources.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            filteredResources.forEach((res, index) => {
+                const card = document.createElement('div');
+                card.className = 'card bg-stone-50 border border-stone-200 rounded-xl p-6 flex flex-col';
+                card.setAttribute('data-index', resources.indexOf(res)); 
+                
+                const keywordsHtml = res.keywords.split(', ').map(k => `<span class="tag text-xs font-medium mr-2 mb-2 px-2.5 py-1 rounded-full">${k}</span>`).join('');
+
+                card.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="text-sm font-semibold text-teal-700 mb-2">${res.category}</p>
+                        <a href="${res.url}" target="_blank" rel="noopener noreferrer" class="block">
+                            <h3 class="text-xl font-bold text-stone-800 hover:text-teal-600 transition truncate">${res.title}</h3>
+                        </a>
+                        <p class="text-stone-600 mt-2 mb-4 text-sm">${res.description}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center mt-auto pt-4 border-t border-stone-200">
+                        <div class="flex-grow flex flex-wrap">
+                            ${keywordsHtml}
+                        </div>
+                        <button class="ml-auto text-xs text-stone-600 px-3 py-1 border border-stone-300 rounded-full hover:bg-stone-200 transition" onclick="handleElaborateResource(resources[${resources.indexOf(res)}], this)">
+                            ✨ Elaborate
+                        </button>
+                    </div>
+                `;
+                resourceGrid.appendChild(card);
+            });
+            summaryOutput.classList.add('hidden'); 
+        }
+        
+        function wrapText(text) {
+            const maxLen = 20;
+            if (text.length <= maxLen) return text;
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxLen) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const categoryCounts = resources.reduce((acc, res) => {
+                acc[res.category] = (acc[res.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sortedCategories = Object.entries(categoryCounts).sort(([, a], [, b]) => b - a);
+            const labels = sortedCategories.map(([category]) => wrapText(category));
+            const data = sortedCategories.map(([, count]) => count);
+
+            categoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Resources',
+                        data: data,
+                        backgroundColor: 'rgba(34, 139, 129, 0.6)',
+                        borderColor: 'rgba(34, 139, 129, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                drawOnChartArea: false,
+                                borderColor: '#d1d5db'
+                            },
+                        },
+                        y: {
+                            grid: {
+                                display: false,
+                                borderColor: '#d1d5db'
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Resource Count by Category',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            color: '#44403c'
+                        },
+                        tooltip: {
+                            cornerRadius: 8,
+                            titleFont: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createKeywordChart() {
+            const ctx = document.getElementById('keywordChart').getContext('2d');
+            const keywordCounts = resources
+                .flatMap(res => res.keywords.split(', '))
+                .reduce((acc, keyword) => {
+                    const kw = keyword.trim();
+                    if (kw) {
+                       acc[kw] = (acc[kw] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
+
+            const sortedKeywords = Object.entries(keywordCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 8); 
+
+            const labels = sortedKeywords.map(([keyword]) => keyword);
+            const data = sortedKeywords.map(([, count]) => count);
+
+            keywordChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Keyword Mentions',
+                        data: data,
+                        backgroundColor: [
+                            '#14532d', '#0f766e', '#0e7490', '#1d4ed8', '#5b21b6', '#a21caf', '#be185d', '#be123c'
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 8 Keywords',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                             color: '#44403c'
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCategoryFilter();
+            renderResources();
+            createCategoryChart();
+            createKeywordChart();
+            
+            categoryFilter.addEventListener('change', renderResources);
+            searchFilter.addEventListener('input', renderResources);
+        });
+    </script>
+</body>
+</html>
