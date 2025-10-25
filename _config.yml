@@ -187,6 +187,21 @@ disqus:
 twitter_username: # your_twitter
 github_username: wikigoo
 
+# Sidebar quick links (displayed under the logo in the layout)
+sidebar_links:
+  - title: Documentation
+    url: https://wikigoo.github.io/VP-KB-v1/docs/
+  - title: Support Portal
+    url: https://wikigoo.github.io/VP-KB-v1/support/
+    new_tab: true
+
+# Social profile URLs used for footer icons
+social_links:
+  twitter: https://twitter.com/
+  instagram: https://instagram.com/
+  telegram: https://t.me/
+  youtube: https://youtube.com/
+
 # Footer Configuration
 footer_content: >
   VP-KB-v1 Knowledge Base © 2025. Creative Content & Educational Resources for AI Assistants.
