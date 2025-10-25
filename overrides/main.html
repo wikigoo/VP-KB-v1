@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+<!-- Custom Sidebar with Logo, Custom Links, and Download Buttons -->
+{% block site_nav %}
+  <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+    <div class="md-sidebar__scrollwrap">
+      <div class="md-sidebar__inner">
+        
+        <!-- Logo Section -->
+        <div class="logo-container">
+          <img src="{{ config.theme.logo }}" alt="{{ config.site_name }} Logo">
+          <h1>{{ config.site_name }}</h1>
+        </div>
+
+        <!-- Custom Links Section -->
+        {% if config.extra.custom_links %}
+        <div class="custom-sidebar-links">
+          <h3>Quick Links</h3>
+          {% for link in config.extra.custom_links %}
+          <a href="{{ link.url }}" class="custom-link-item">
+            <span class="icon">{{ link.icon }}</span>
+            <span>{{ link.name }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Download Buttons -->
+        <div class="download-buttons">
+          <a href="{{ config.repo_url }}/archive/refs/heads/main.zip" class="download-btn" title="Download as ZIP">
+            Download ZIP File
+          </a>
+          <a href="{{ config.repo_url }}/archive/refs/heads/main.tar.gz" class="download-btn" title="Download as TAR Ball">
+            Download TAR Ball
+          </a>
+          <a href="{{ config.repo_url }}" class="download-btn" title="View on GitHub" target="_blank">
+            View On GitHub
+          </a>
+        </div>
+
+        <!-- Categories Header -->
+        <div class="categories-header">
+          CATEGORIES
+        </div>
+
+        <!-- Default Navigation -->
+        {{ super() }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+<!-- Enhanced Footer with Social Icons -->
+{% block footer %}
+  <footer class="md-footer">
+    {% if page.previous_page or page.next_page %}
+      <nav class="md-footer__inner md-grid" aria-label="{{ lang.t('footer.title') }}">
+        {% if page.previous_page %}
+          <a href="{{ page.previous_page.url | url }}" class="md-footer__link md-footer__link--prev" aria-label="{{ lang.t('footer.previous') }}: {{ page.previous_page.title | e }}" rel="prev">
+            <div class="md-footer__button md-icon">
+              {% include ".icons/material/arrow-left.svg" %}
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  {{ lang.t("footer.previous") }}
+                </span>
+                {{ page.previous_page.title }}
+              </div>
+            </div>
+          </a>
+        {% endif %}
+        {% if page.next_page %}
+          <a href="{{ page.next_page.url | url }}" class="md-footer__link md-footer__link--next" aria-label="{{ lang.t('footer.next') }}: {{ page.next_page.title | e }}" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  {{ lang.t("footer.next") }}
+                </span>
+                {{ page.next_page.title }}
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              {% include ".icons/material/arrow-right.svg" %}
+            </div>
+          </a>
+        {% endif %}
+      </nav>
+    {% endif %}
+    
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        
+        <!-- Social Media Icons -->
+        {% if config.extra.social %}
+          <div class="md-social">
+            {% for social in config.extra.social %}
+              <a href="{{ social.link }}" target="_blank" rel="noopener" title="{{ social.name }}" class="md-social__link">
+                {% include ".icons/" ~ social.icon ~ ".svg" %}
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+        
+        <!-- Copyright and Attribution -->
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+            {{ config.copyright }}
+          </div>
+          {% if config.site_author %}
+            <div>
+              This project is maintained by {{ config.site_author }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </footer>
+{% endblock %}
