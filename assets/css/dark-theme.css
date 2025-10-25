@@ -1,0 +1,356 @@
+/* ============================================
+   Dark Theme for VP-KB-v1
+   Optimized dark color scheme with smooth transitions
+   ============================================ */
+
+:root {
+  /* Light theme colors (default fallback) */
+  --bg-color: #ffffff;
+  --text-color: #727272;
+  --heading-color: #222222;
+  --heading-secondary: #393939;
+  --heading-tertiary: #494949;
+  --link-color: #267CB9;
+  --link-hover: #069;
+  --border-color: #e5e5e5;
+  --code-bg: #f8f8f8;
+  --code-color: #333333;
+  --header-bg: #ffffff;
+  --footer-bg: #ffffff;
+  --download-bg: #f4f4f4;
+  --download-border: #e0e0e0;
+  --download-text: #676767;
+  --blockquote-border: #e5e5e5;
+  --small-text: #777777;
+}
+
+/* Dark theme colors */
+[data-theme="dark"] {
+  --bg-color: #0d1117;
+  --text-color: #c9d1d9;
+  --heading-color: #f0f6fc;
+  --heading-secondary: #e6edf3;
+  --heading-tertiary: #c9d1d9;
+  --link-color: #58a6ff;
+  --link-hover: #79c0ff;
+  --border-color: #30363d;
+  --code-bg: #161b22;
+  --code-color: #e6edf3;
+  --header-bg: #0d1117;
+  --footer-bg: #0d1117;
+  --download-bg: #161b22;
+  --download-border: #30363d;
+  --download-text: #8b949e;
+  --blockquote-border: #30363d;
+  --small-text: #8b949e;
+}
+
+/* Apply theme colors with smooth transitions */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+  transition: color 0.3s ease;
+}
+
+h2 {
+  color: var(--heading-secondary);
+}
+
+h3, h4, h5, h6 {
+  color: var(--heading-tertiary);
+}
+
+a {
+  color: var(--link-color);
+  transition: color 0.2s ease;
+}
+
+a:hover, a:focus {
+  color: var(--link-hover);
+}
+
+a small {
+  color: var(--small-text);
+}
+
+code, pre {
+  color: var(--code-color);
+  background: var(--code-bg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+blockquote {
+  border-left: 1px solid var(--blockquote-border);
+  transition: border-color 0.3s ease;
+}
+
+table {
+  border-color: var(--border-color);
+}
+
+th, td {
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.3s ease;
+}
+
+th {
+  color: var(--heading-color);
+}
+
+dt {
+  color: var(--heading-color);
+}
+
+strong {
+  color: var(--heading-color);
+}
+
+hr {
+  background: var(--border-color);
+  transition: background-color 0.3s ease;
+}
+
+/* Header and Footer */
+header, footer {
+  background-color: var(--header-bg);
+  transition: background-color 0.3s ease;
+}
+
+/* Downloads section */
+ul.downloads {
+  background: var(--download-bg);
+  border: 1px solid var(--download-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.downloads li {
+  border-right: 1px solid var(--download-border);
+}
+
+.downloads a {
+  color: var(--download-text);
+  transition: color 0.2s ease;
+}
+
+.downloads a strong {
+  color: var(--heading-color);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--download-bg);
+  border: 2px solid var(--border-color);
+  color: var(--heading-color);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Social Media Icons */
+.social-media {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--download-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--link-color);
+  font-size: 18px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.social-icon:hover {
+  color: var(--link-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-weight: normal;
+}
+
+/* Custom Links Section */
+.custom-links {
+  margin: 25px 0;
+  padding: 15px;
+  background: var(--download-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.custom-links h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: var(--heading-color);
+}
+
+.custom-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.custom-links li {
+  margin: 8px 0;
+}
+
+.custom-links a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  color: var(--link-color);
+  text-decoration: none;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.custom-links a:hover {
+  background: var(--code-bg);
+  padding-left: 15px;
+}
+
+.custom-links a i {
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+}
+
+/* Dark theme specific adjustments */
+[data-theme="dark"] kbd {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-bottom-color: #484f58;
+  box-shadow: inset 0 -1px 0 #484f58;
+  color: #c9d1d9;
+}
+
+[data-theme="dark"] .downloads a:active {
+  background-color: #0d1117;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Responsive adjustments */
+@media print, screen and (max-width: 960px) {
+  .theme-toggle {
+    top: 10px;
+    right: 10px;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+
+  .custom-links {
+    margin: 15px 0;
+  }
+}
+
+@media print, screen and (max-width: 720px) {
+  .social-media {
+    justify-content: center;
+  }
+
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media print, screen and (max-width: 480px) {
+  .social-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .custom-links {
+    padding: 12px;
+  }
+}
+
+/* Print styles - force light theme */
+@media print {
+  body {
+    background-color: #ffffff;
+    color: #444444;
+  }
+
+  .theme-toggle {
+    display: none;
+  }
+
+  .social-media {
+    display: none;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .social-icon {
+    border-width: 3px;
+  }
+
+  .theme-toggle {
+    border-width: 3px;
+  }
+
+  .custom-links {
+    border-width: 2px;
+  }
+}

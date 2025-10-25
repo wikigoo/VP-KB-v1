@@ -187,6 +187,39 @@ disqus:
 twitter_username: # your_twitter
 github_username: wikigoo
 
+# Social Media Links (for footer icons)
+# Add your social media URLs here
+social_media:
+  twitter: https://twitter.com/your_username
+  instagram: https://instagram.com/your_username
+  telegram: https://t.me/your_channel
+  youtube: https://youtube.com/@your_channel
+
+# Custom Sidebar Links
+# Add custom links that appear in the sidebar under the logo and above download buttons
+# icon: Optional Font Awesome icon class (e.g., "fas fa-book", "fas fa-link")
+# external: Set to true to open in new tab
+custom_links:
+  - title: Documentation
+    url: /docs/
+    icon: fas fa-book
+    external: false
+  - title: Community Forum
+    url: https://github.com/wikigoo/VP-KB-v1/discussions
+    icon: fas fa-comments
+    external: true
+  - title: Report Issue
+    url: https://github.com/wikigoo/VP-KB-v1/issues
+    icon: fas fa-bug
+    external: true
+  - title: Contributing Guide
+    url: /contributing/
+    icon: fas fa-hands-helping
+    external: false
+
+# Theme Mode (dark or light)
+theme_mode: dark
+
 # Footer Configuration
 footer_content: >
   VP-KB-v1 Knowledge Base © 2025. Creative Content & Educational Resources for AI Assistants.
