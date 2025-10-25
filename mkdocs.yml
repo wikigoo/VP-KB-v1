@@ -1,11 +1,11 @@
 site_name: VP_KB_2
 site_description: AI Chatbot Knowledge Center for multiple platforms
 site_author: wikigoo
-site_url: https://yourusername.github.io/VP-KB-v1
+site_url: https://wikigoo.github.io/VP-KB-v1/
 
 # Repository
 repo_name: VP-KB-v1
-repo_url: https://github.com/yourusername/VP-KB-v1
+repo_url: https://github.com/wikigoo/VP-KB-v1
 edit_uri: edit/main/docs/
 
 # Theme Configuration
