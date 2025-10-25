@@ -32,6 +32,12 @@
         color: #60a5fa;
       }
 
+      a:focus-visible,
+      button:focus-visible {
+        outline: 3px solid rgba(96, 165, 250, 0.8);
+        outline-offset: 2px;
+      }
+
       .page-shell {
         display: grid;
         grid-template-columns: minmax(260px, 320px) 1fr;
@@ -141,6 +147,20 @@
         margin-bottom: 2rem;
       }
 
+      .page-title {
+        font-size: clamp(2rem, 3vw + 1rem, 2.75rem);
+        font-weight: 700;
+        margin: 0;
+        color: #f8fafc;
+      }
+
+      .page-subtitle {
+        margin: 0;
+        color: rgba(226, 232, 240, 0.72);
+        font-size: 1.05rem;
+        max-width: 72ch;
+      }
+
       .primary-nav {
         display: flex;
         flex-wrap: wrap;
@@ -155,7 +175,8 @@
         font-size: 0.9rem;
       }
 
-      .primary-nav a:hover {
+      .primary-nav a:hover,
+      .primary-nav a:focus-visible {
         background: rgba(59, 130, 246, 0.28);
       }
 
@@ -174,6 +195,21 @@
 
       .content-card :last-child {
         margin-bottom: 0;
+      }
+
+      .content-card h1,
+      .content-card h2,
+      .content-card h3,
+      .content-card h4,
+      .content-card h5,
+      .content-card h6 {
+        color: #f8fafc;
+      }
+
+      .content-card code,
+      .content-card pre {
+        background: rgba(15, 23, 42, 0.9);
+        color: #f1f5f9;
       }
 
       .site-footer {
@@ -204,7 +240,8 @@
         color: #e2e8f0;
       }
 
-      .footer-social a:hover {
+      .footer-social a:hover,
+      .footer-social a:focus-visible {
         background: rgba(59, 130, 246, 0.28);
       }
 
@@ -212,6 +249,17 @@
         color: inherit;
         text-decoration: underline;
         text-decoration-style: dotted;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
 
       @media (max-width: 1100px) {
@@ -298,6 +346,12 @@
 
       <main class="main-content">
         <div class="main-header">
+          <div>
+            <h1 class="page-title">{{ page.title | default: site.title }}</h1>
+            {% if page.description or site.description %}
+              <p class="page-subtitle">{{ page.description | default: site.description }}</p>
+            {% endif %}
+          </div>
           {% if site.navigation %}
             <nav class="primary-nav" aria-label="Primary navigation">
               {% for item in site.navigation %}
