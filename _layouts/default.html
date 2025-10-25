@@ -5,51 +5,359 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% seo %}
+    {% seo %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | relative_url }}">
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      body.theme-dark {
+        margin: 0;
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+        background: radial-gradient(circle at top left, #1f2937 0%, #0b1120 50%, #030712 100%);
+        color: #e2e8f0;
+        min-height: 100vh;
+        display: flex;
+      }
+
+      a {
+        color: #38bdf8;
+        text-decoration: none;
+        transition: color 0.2s ease, opacity 0.2s ease;
+      }
+
+      a:hover,
+      a:focus {
+        color: #60a5fa;
+      }
+
+      .page-shell {
+        display: grid;
+        grid-template-columns: minmax(260px, 320px) 1fr;
+        gap: 0;
+        width: 100%;
+      }
+
+      .sidebar {
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(24px);
+        padding: 3rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
+        box-shadow: inset -1px 0 0 rgba(148, 163, 184, 0.1);
+      }
+
+      .sidebar-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .sidebar-brand a.logo-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: inherit;
+      }
+
+      .sidebar-brand img {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        object-fit: contain;
+        box-shadow: 0 10px 30px rgba(15, 118, 255, 0.25);
+      }
+
+      .sidebar-title {
+        font-size: 1.75rem;
+        line-height: 1.3;
+        margin: 0;
+      }
+
+      .sidebar-description {
+        margin: 0;
+        color: rgba(226, 232, 240, 0.75);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .sidebar-heading {
+        margin: 2rem 0 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(148, 163, 184, 0.7);
+      }
+
+      .sidebar-custom-links ul,
+      .downloads {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+
+      .sidebar-custom-links a,
+      .downloads a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 12px;
+        background: rgba(59, 130, 246, 0.14);
+        color: inherit;
+        font-weight: 600;
+      }
+
+      .sidebar-custom-links a:hover,
+      .downloads a:hover {
+        background: rgba(59, 130, 246, 0.25);
+      }
+
+      .downloads strong {
+        font-weight: inherit;
+      }
+
+      .main-content {
+        position: relative;
+        padding: 3.5rem 4rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .main-header {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .primary-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .primary-nav a {
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(59, 130, 246, 0.15);
+        color: inherit;
+        font-size: 0.9rem;
+      }
+
+      .primary-nav a:hover {
+        background: rgba(59, 130, 246, 0.28);
+      }
+
+      .content-card {
+        background: rgba(15, 23, 42, 0.65);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.35);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        flex: 1;
+      }
+
+      .content-card :first-child {
+        margin-top: 0;
+      }
+
+      .content-card :last-child {
+        margin-bottom: 0;
+      }
+
+      .site-footer {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        color: rgba(226, 232, 240, 0.7);
+        font-size: 0.9rem;
+      }
+
+      .footer-social {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .footer-social a {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(59, 130, 246, 0.16);
+        color: #e2e8f0;
+      }
+
+      .footer-social a:hover {
+        background: rgba(59, 130, 246, 0.28);
+      }
+
+      .footer-note a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+      }
+
+      @media (max-width: 1100px) {
+        .page-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: relative;
+          z-index: 2;
+          box-shadow: none;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .main-content {
+          padding: 2.5rem 2rem 3rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .sidebar {
+          padding: 2rem 1.75rem;
+        }
+
+        .main-content {
+          padding: 2rem 1.5rem 2.5rem;
+        }
+
+        .content-card {
+          padding: 1.75rem;
+        }
+      }
+    </style>
     <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
     <![endif]-->
     {% include head-custom.html %}
   </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1><a href="{{ "/" | absolute_url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
+  <body class="theme-dark">
+    <div class="page-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <h1 class="sidebar-title">
+            <a class="logo-link" href="{{ "/" | absolute_url }}">
+              {% if site.logo %}
+                <img src="{{ site.logo | relative_url }}" alt="{{ site.title | escape }} logo">
+              {% endif %}
+              <span>{{ site.title | default: site.github.repository_name }}</span>
+            </a>
+          </h1>
 
-        {% if site.logo %}
-          <img src="{{site.logo | relative_url}}" alt="Logo" />
-        {% endif %}
+          {% if site.description or site.github.project_tagline %}
+            <p class="sidebar-description">{{ site.description | default: site.github.project_tagline }}</p>
+          {% endif %}
 
-        <p>{{ site.description | default: site.github.project_tagline }}</p>
-
-        {% if site.github.is_project_page %}
-        <p class="view"><a href="{{ site.github.repository_url }}">View the Project on GitHub <small>{{ site.github.repository_nwo }}</small></a></p>
-        {% endif %}
-
-        {% if site.github.is_user_page %}
-        <p class="view"><a href="{{ site.github.owner_url }}">View My GitHub Profile</a></p>
-        {% endif %}
+          {% if site.sidebar_links and site.sidebar_links.size > 0 %}
+            <div class="sidebar-custom-links">
+              <p class="sidebar-heading">Quick Links</p>
+              <ul>
+                {% for link in site.sidebar_links %}
+                  {% assign link_url = link.url | default: link.href %}
+                  {% assign link_title = link.title | default: link.name | default: link_url %}
+                  {% assign open_in_new = link.new_tab | default: link.external | default: false %}
+                  <li>
+                    <a href="{{ link_url }}"{% if open_in_new %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link_title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        </div>
 
         {% if site.show_downloads %}
-        <ul class="downloads">
-          <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
-          <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="{{ site.github.repository_url }}">View On <strong>GitHub</strong></a></li>
-        </ul>
+          <div>
+            <p class="sidebar-heading">Downloads</p>
+            <ul class="downloads">
+              <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
+              <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
+              <li><a href="{{ site.github.repository_url }}">View On <strong>GitHub</strong></a></li>
+            </ul>
+          </div>
         {% endif %}
-      </header>
-      <section>
+      </aside>
 
-      {{ content }}
+      <main class="main-content">
+        <div class="main-header">
+          {% if site.navigation %}
+            <nav class="primary-nav" aria-label="Primary navigation">
+              {% for item in site.navigation %}
+                <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+              {% endfor %}
+            </nav>
+          {% endif %}
+        </div>
 
-      </section>
-      <footer>
-        {% if site.github.is_project_page %}
-        <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
-        {% endif %}
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        <div class="content-card">
+          {{ content }}
+        </div>
+
+        <footer class="site-footer">
+          {% assign socials = site.social_links %}
+          {% if socials.twitter or socials.instagram or socials.telegram or socials.youtube %}
+            <div class="footer-social" aria-label="Social media">
+              {% if socials.twitter %}
+                <a href="{{ socials.twitter }}" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M21.53 2.47a.75.75 0 0 0-1.06 0l-6.72 6.72-3.22-3.22a.75.75 0 0 0-1.28.53v8a.75.75 0 0 0 1.28.53l3.22-3.22 6.72 6.72a.75.75 0 0 0 1.06-1.06L14.59 11l6.94-6.94a.75.75 0 0 0 0-1.06Z"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if socials.instagram %}
+                <a href="{{ socials.instagram }}" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5Zm6.25-4.75a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if socials.telegram %}
+                <a href="{{ socials.telegram }}" aria-label="Telegram" target="_blank" rel="noopener noreferrer">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M21.94 4.34a1.25 1.25 0 0 0-1.72-1.35L3.22 10.42a1.25 1.25 0 0 0 .03 2.31l4.9 1.82 1.82 4.9a1.25 1.25 0 0 0 2.31.03l7.42-16.99a1.23 1.23 0 0 0 .24-.15Z"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if socials.youtube %}
+                <a href="{{ socials.youtube }}" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M21.6 7.2a2.75 2.75 0 0 0-1.94-1.94C18.14 5 12 5 12 5s-6.14 0-7.66.26A2.75 2.75 0 0 0 2.4 7.2 28.8 28.8 0 0 0 2 12a28.8 28.8 0 0 0 .4 4.8 2.75 2.75 0 0 0 1.94 1.94C5.86 19 12 19 12 19s6.14 0 7.66-.26a2.75 2.75 0 0 0 1.94-1.94A28.8 28.8 0 0 0 22 12a28.8 28.8 0 0 0-.4-4.8ZM10 15V9l5 3-5 3Z"/>
+                  </svg>
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="footer-note">
+            {% if site.footer_content %}
+              {{ site.footer_content }}
+            {% else %}
+              {% if site.github.is_project_page %}
+                <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</p>
+              {% endif %}
+              <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a>.</p>
+            {% endif %}
+          </div>
+        </footer>
+      </main>
     </div>
     <script src="{{ "/assets/js/scale.fix.js" | relative_url }}"></script>
   </body>
